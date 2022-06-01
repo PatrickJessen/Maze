@@ -7,7 +7,6 @@ Solver::Solver(Maze* maze)
 {
 	xPos = maze->GetEntry() - 1;
 	yPos = 0;
-	//maze->GetCells()[yPos][xPos].hasBeenVisited = true;
 	srand(time(NULL));
 }
 
@@ -18,6 +17,7 @@ void Solver::Solve()
 	{
 		// Random number between 0 and 3 decides where to go next in the array
 		int dir = rand() % 4;
+		int value = maze->GetCells()[yPos][xPos].value;
 
 		switch (dir)
 		{
@@ -37,20 +37,29 @@ void Solver::Solve()
 		default:
 			break;
 		}
+
 	}
 
 	for (int i = 0; i < directions.size(); i++)
 	{
 		std::cout << directions[i] << "\n";
 	}
+		std::cout << directions.size() << "\n";
 }
 
 void Solver::MoveCell(Direction direction, std::string dirStr, int& pos, int count, int xOffset, int yOffset)
 {
-	if (!maze->GetCells()[yPos][xPos].walls[direction] && !maze->GetCells()[yPos + yOffset][xPos + xOffset].hasBeenVisited)
+	if (!maze->GetCells()[yPos][xPos].walls[direction] && !maze->GetCells()[yPos + yOffset][xPos + xOffset].isDeadEnd && !maze->GetCells()[yPos + yOffset][xPos + xOffset].hasBeenVisited)
 	{
 		maze->GetCells()[yPos][xPos].hasBeenVisited = true;
 		pos += count;
 		directions.push_back(dirStr);
 	}
+}
+
+bool Solver::IsStuck(int xOffset, int yOffset)
+{
+	if (maze->GetCells()[yPos + yOffset][xPos + xOffset].hasBeenVisited && maze->GetCells()[yPos + yOffset][xPos + xOffset].isDeadEnd)
+		return true;
+	return false;
 }

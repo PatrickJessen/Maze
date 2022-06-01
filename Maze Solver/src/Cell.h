@@ -17,8 +17,12 @@ public:
 	Cell() = default;
 
 	void PlaceWall(uint8_t value);
+
+private:
+	void CheckForDeadEnd();
 public:
 	uint8_t value;
 	std::map<Direction, bool> walls{ {Direction::NORTH, false}, {Direction::SOUTH, false}, {Direction::EAST, false}, {Direction::WEST, false} };
 	bool hasBeenVisited = false;
+	bool isDeadEnd = false;
 };

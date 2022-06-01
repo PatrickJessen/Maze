@@ -1,4 +1,5 @@
 #include "Cell.h"
+#include <iostream>
 
 void Cell::PlaceWall(uint8_t value)
 {
@@ -12,4 +13,14 @@ void Cell::PlaceWall(uint8_t value)
 		walls[Direction::EAST] = true;
 	if (value & (uint8_t)Direction::WEST)
 		walls[Direction::WEST] = true;
+
+	CheckForDeadEnd();
+}
+
+void Cell::CheckForDeadEnd()
+{
+	if (walls[Direction::NORTH] && walls[Direction::SOUTH] && walls[Direction::EAST] || walls[Direction::NORTH] && walls[Direction::SOUTH] && walls[Direction::WEST] ||
+		walls[Direction::SOUTH] && walls[Direction::EAST] && walls[Direction::WEST])
+		isDeadEnd = true;
+	//std::cout << isDeadEnd << "\n";
 }
