@@ -3,6 +3,13 @@
 #include <vector>
 #include <string>
 
+struct Position
+{
+public:
+	int X;
+	int Y;
+};
+
 class Solver
 {
 public:
@@ -19,6 +26,7 @@ private:
 private:
 	Maze* maze = nullptr;
 	std::vector<std::string> directions;
+	std::vector<Position> positions;
 	int xPos;
 	int yPos;
 };
