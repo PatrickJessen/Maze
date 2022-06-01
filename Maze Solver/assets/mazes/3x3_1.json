@@ -1,0 +1,25 @@
+{
+  "seed": 1,
+  "width": 3,
+  "height": 3,
+  "entry": 2,
+  "exit": 2,
+  "cells": [
+    [
+      { "north": true, "south": false, "east": false, "west": true },
+      { "north": false, "south": true, "east": true, "west": false },
+      { "north": true, "south": false, "east": true, "west": true }
+    ],
+    [
+      { "north": false, "south": false, "east": true, "west": true },
+      { "north": true, "south": false, "east": false, "west": true },
+      { "north": false, "south": true, "east": true, "west": false }
+    ],
+    [
+      { "north": false, "south": true, "east": false, "west": true },
+      { "north": false, "south": false, "east": false, "west": false },
+      { "north": true, "south": true, "east": true, "west": false }
+    ]
+  ]
+}
+
