@@ -7,6 +7,7 @@ Solver::Solver(Maze* maze)
 {
 	xPos = maze->GetEntry() - 1;
 	yPos = 0;
+	maze->GetCells()[yPos][xPos].hasBeenVisited = true;
 	srand(time(NULL));
 }
 
@@ -25,79 +26,32 @@ void Solver::Solve()
 				dirs.push_back(x.first);
 			}
 		}
-		// if there is multiple ways to go create a checkpoint to go back to, to try another way if one way was blocked
-		if (count > 1)
+		/*if (yPos != 0 && count == 3)
+			maze->GetCells()[yPos][xPos].hasBeenVisited = false;*/
+
+		int randDir = rand() % dirs.size();
+		switch (dirs[randDir])
 		{
-			checkpoint = { xPos, yPos };
-			maze->GetCells()[yPos][xPos].hasBeenVisited = false;
-		}
-
-		if (maze->GetCells()[yPos][xPos].isDeadEnd)
-		{
-			xPos = checkpoint.X;
-			yPos = checkpoint.Y;
-		}
-
-		for (int i = 0; i < dirs.size(); i++)
-		{
-			if (dirs[i] == Direction::NORTH)
-			{
-
-				if (yPos != 0)
-				{
-					MoveCell(Direction::NORTH, "NORTH", yPos, -1, 0, -1);
-				}
-			}
-			else if (dirs[i] == Direction::SOUTH)
-			{
-				MoveCell(Direction::SOUTH, "SOUTH", yPos, 1, 0, 1);
-			}
-			else if (dirs[i] == Direction::EAST)
-			{
-				MoveCell(Direction::EAST, "EAST", xPos, 1, 1, 0);
-			}
-			else if (dirs[i] == Direction::WEST)
-			{
-				MoveCell(Direction::WEST, "WEST", xPos, -1, -1, 0);
-			}
-		}
-
-
-		int value = maze->GetCells()[yPos][xPos].value;
-
-		/*if (value == 4)
-		{
-			std::cout << maze->GetCells()[yPos][xPos].hasBeenVisited << "\n";
-		}*/
-		// Random number between 0 and 3 decides where to go next in the array
-		//int dir = rand() % 4;
-		/*switch (dir)
-		{
-		case 0:
+		case Direction::NORTH:
 			if (yPos != 0)
 				MoveCell(Direction::NORTH, "NORTH", yPos, -1, 0, -1);
 			break;
-		case 1:
+		case Direction::SOUTH:
 			MoveCell(Direction::SOUTH, "SOUTH", yPos, 1, 0, 1);
 			break;
-		case 2:
-			MoveCell(Direction::WEST, "WEST", xPos, -1, -1, 0);
-			break;
-		case 3:
+		case Direction::EAST:
 			MoveCell(Direction::EAST, "EAST", xPos, 1, 1, 0);
+			break;
+		case Direction::WEST:
+			MoveCell(Direction::WEST, "WEST", xPos, -1, -1, 0);
 			break;
 		default:
 			break;
-		}*/
+		}
 
 
-		//for (int i = 0; i < visitedCells.size(); i++)
-		//	if (maze->GetCells()[yPos][xPos] == visitedCells[i])
-		//	{
-		//		dir = rand() % 4;
-		//		break;
-		//	}
-		// TODO: if i get stuck go back in the array to find another way
+
+		int value = maze->GetCells()[yPos][xPos].value;
 
 	}
 
@@ -105,27 +59,33 @@ void Solver::Solve()
 	{
 		std::cout << directions[i] << "\n";
 	}
-	std::cout << directions.size() << "\n";
+	std::cout << directions.size() - 1 << "\n";
 }
 
 void Solver::MoveCell(Direction direction, std::string dirStr, int& pos, int count, int xOffset, int yOffset)
 {
-	if (!maze->GetCells()[yPos][xPos].walls[direction] && !maze->GetCells()[yPos + yOffset][xPos + xOffset].hasBeenVisited)
+	if (!maze->GetCells()[yPos + yOffset][xPos + xOffset].hasBeenVisited)
 	{
-		//visitedCells.push_back(maze->GetCells()[yPos][xPos]);
+		positions.push_back({ xPos, yPos });
 		pos += count;
-		//positions.push_back({ xPos, yPos });
-		//if (xPos != checkpoint.X && yPos != checkpoint.Y)
-			maze->GetCells()[yPos][xPos].hasBeenVisited = true;
+		maze->GetCells()[yPos][xPos].hasBeenVisited = true;
 		directions.push_back(dirStr);
+	}
+	else if (IsStuck(xOffset, yOffset) && positions.size() > 0)
+	{
+		xPos = positions.back().X;
+		yPos = positions.back().Y;
+		maze->GetCells()[yPos][xPos].hasBeenVisited = true;
+		positions.pop_back();
+		//directions.push_back(directions[directions.size() - 1]);
 	}
 }
 
 bool Solver::IsStuck(int xOffset, int yOffset)
 {
-	bool visited = maze->GetCells()[yPos + yOffset][xPos + xOffset].hasBeenVisited;
-	bool deadEnd = maze->GetCells()[yPos + yOffset][xPos + xOffset].isDeadEnd;
-	if (maze->GetCells()[yPos + yOffset][xPos + xOffset].hasBeenVisited && maze->GetCells()[yPos + yOffset][xPos + xOffset].isDeadEnd)
+	bool visited = maze->GetCells()[yPos][xPos].hasBeenVisited;
+	bool deadEnd = maze->GetCells()[yPos][xPos].isDeadEnd;
+	if (visited && deadEnd)
 		return true;
 	return false;
 }

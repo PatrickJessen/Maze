@@ -26,7 +26,6 @@ private:
 private:
 	Maze* maze = nullptr;
 	std::vector<std::string> directions;
-	std::vector<Cell> visitedCells;
 	std::vector<Position> positions;
 	Position checkpoint;
 	int xPos;
