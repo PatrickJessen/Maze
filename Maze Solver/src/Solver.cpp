@@ -17,18 +17,12 @@ void Solver::Solve()
 	while (yPos != maze->GetHeight() - 1 || xPos != maze->GetExit() - 1)
 	{
 		std::vector<Direction> dirs;
-		int count = 0;
+		// Add directions to a vector that dosent have a wall
 		for (auto& x : maze->GetCells()[yPos][xPos].walls)
-		{
 			if (!x.second)
-			{
-				count++;
 				dirs.push_back(x.first);
-			}
-		}
-		/*if (yPos != 0 && count == 3)
-			maze->GetCells()[yPos][xPos].hasBeenVisited = false;*/
 
+		// Choose a random direction to go
 		int randDir = rand() % dirs.size();
 		switch (dirs[randDir])
 		{
@@ -49,10 +43,7 @@ void Solver::Solve()
 			break;
 		}
 
-
-
 		int value = maze->GetCells()[yPos][xPos].value;
-
 	}
 
 	for (int i = 0; i < directions.size(); i++)
@@ -64,28 +55,64 @@ void Solver::Solve()
 
 void Solver::MoveCell(Direction direction, std::string dirStr, int& pos, int count, int xOffset, int yOffset)
 {
-	if (!maze->GetCells()[yPos + yOffset][xPos + xOffset].hasBeenVisited)
+	// Possible Fix: If i get stuck go one back then check for possible directions, if none go one back again and do the same
+
+
+	// First check if we are stuck or our next direction is a dead end
+	if (IsStuck(xOffset, yOffset))
+	{
+		maze->GetCells()[yPos][xPos].hasBeenVisited = false;
+		if (positions.size() > 0)
+		{
+			// If we get stuck we go one position back to find another way.
+			xPos = positions.back().X;
+			yPos = positions.back().Y;
+			positions.pop_back();
+			directions.pop_back();
+			//directions.push_back(directions.back());
+		}
+		maze->GetCells()[yPos][xPos].hasBeenVisited = true;
+	}
+	// If we are not stuck and we havent visited the next cell yet, we push back our current position to a vector so we can go back if we get stuck, Then we visit the next cell and push back the direction we whent
+	else if (!maze->GetCells()[yPos + yOffset][xPos + xOffset].hasBeenVisited)
 	{
 		positions.push_back({ xPos, yPos });
+		maze->GetCells()[yPos][xPos].hasBeenVisited = true;
 		pos += count;
+		RemoveDirection(direction);
 		maze->GetCells()[yPos][xPos].hasBeenVisited = true;
 		directions.push_back(dirStr);
-	}
-	else if (IsStuck(xOffset, yOffset) && positions.size() > 0)
-	{
-		xPos = positions.back().X;
-		yPos = positions.back().Y;
-		maze->GetCells()[yPos][xPos].hasBeenVisited = true;
-		positions.pop_back();
-		//directions.push_back(directions[directions.size() - 1]);
 	}
 }
 
 bool Solver::IsStuck(int xOffset, int yOffset)
 {
-	bool visited = maze->GetCells()[yPos][xPos].hasBeenVisited;
+	bool visited = maze->GetCells()[yPos + yOffset][xPos + xOffset].hasBeenVisited;
 	bool deadEnd = maze->GetCells()[yPos][xPos].isDeadEnd;
-	if (visited && deadEnd)
+	if (deadEnd || visited && deadEnd)
+	{
 		return true;
+	}
 	return false;
+}
+
+void Solver::RemoveDirection(Direction dir)
+{
+	switch (dir)
+	{
+	case Direction::NORTH:
+		maze->GetCells()[yPos][xPos].walls[Direction::SOUTH] = true;
+		break;
+	case Direction::SOUTH:
+		maze->GetCells()[yPos][xPos].walls[Direction::NORTH] = true;
+		break;
+	case Direction::EAST:
+		maze->GetCells()[yPos][xPos].walls[Direction::WEST] = true;
+		break;
+	case Direction::WEST:
+		maze->GetCells()[yPos][xPos].walls[Direction::EAST] = true;
+		break;
+	default:
+		break;
+	}
 }

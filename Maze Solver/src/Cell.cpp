@@ -20,7 +20,7 @@ void Cell::PlaceWall(uint8_t value)
 void Cell::CheckForDeadEnd()
 {
 	if (walls[Direction::NORTH] && walls[Direction::SOUTH] && walls[Direction::EAST] || walls[Direction::NORTH] && walls[Direction::SOUTH] && walls[Direction::WEST] ||
-		walls[Direction::SOUTH] && walls[Direction::EAST] && walls[Direction::WEST])
+		walls[Direction::SOUTH] && walls[Direction::EAST] && walls[Direction::WEST] || walls[Direction::NORTH] && walls[Direction::WEST] && walls[Direction::EAST])
 		isDeadEnd = true;
 	//std::cout << isDeadEnd << "\n";
 }
