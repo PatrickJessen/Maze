@@ -93,7 +93,7 @@ bool Solver::IsStuck(int xOffset, int yOffset)
 	{
 		bool visited = maze->GetCells()[yPos + yOffset][xPos + xOffset].hasBeenVisited;
 		bool deadEnd = maze->GetCells()[yPos][xPos].isDeadEnd;
-		if (deadEnd || visited && deadEnd || visited)
+		if (deadEnd || visited)
 		{
 			return true;
 		}
