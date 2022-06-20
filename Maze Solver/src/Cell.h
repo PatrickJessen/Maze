@@ -23,6 +23,6 @@ private:
 public:
 	uint8_t value;
 	std::map<Direction, bool> walls{ {Direction::NORTH, false}, {Direction::SOUTH, false}, {Direction::EAST, false}, {Direction::WEST, false} };
-	bool hasBeenVisited = false;
+	bool visited = false;
 	bool isDeadEnd = false;
 };

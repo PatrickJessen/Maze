@@ -28,7 +28,9 @@ private:
 private:
 	Maze* maze = nullptr;
 	std::vector<std::string> directions;
-	std::vector<Position> positions;
+	std::vector<Position> checkpoints;
 	int xPos;
 	int yPos;
+	int paths = 0;
+	int retries = 0;
 };
