@@ -36,27 +36,28 @@ void Solver::MazeLoop()
 	// loop through the walls at the current position
 	for (auto& x : maze->GetCells()[yPos][xPos].walls)
 	{
+		if (yPos == maze->GetHeight() - 1 && xPos == maze->GetExit() - 1)
+			return;
 		// if there isnt a wall, move to that cell.
 		if (!x.second)
 		{
 			maze->GetCells()[yPos][xPos].visited = true;
-			//maze->GetCells()[yPos][xPos].walls[x.first] = true;
 			switch (x.first)
 			{
 			case Direction::NORTH:
 				if (yPos != 0)
 				{
-					MoveCell(Direction::NORTH, "NORTH", yPos, -1, 0, -1);
+					MoveCell(Direction::NORTH, "UP", yPos, -1, 0, -1);
 				}
 				break;
 			case Direction::SOUTH:
-				MoveCell(Direction::SOUTH, "SOUTH", yPos, 1, 0, 1);
+				MoveCell(Direction::SOUTH, "DOWN", yPos, 1, 0, 1);
 				break;
 			case Direction::EAST:
-				MoveCell(Direction::EAST, "EAST", xPos, 1, 1, 0);
+				MoveCell(Direction::EAST, "RIGHT", xPos, 1, 1, 0);
 				break;
 			case Direction::WEST:
-				MoveCell(Direction::WEST, "WEST", xPos, -1, -1, 0);
+				MoveCell(Direction::WEST, "LEFT", xPos, -1, -1, 0);
 				break;
 			default:
 				break;
@@ -67,42 +68,51 @@ void Solver::MazeLoop()
 
 void Solver::MoveCell(Direction direction, std::string dirStr, int& pos, int count, int xOffset, int yOffset)
 {
-	paths = 0;
-	// First check if we are stuck or our next direction is a dead end
-	if (IsStuck(xOffset, yOffset) || retries > 3)
+	// Make sure we dont go outside of the array
+	if (xPos + xOffset < maze->GetWidth() && yPos + yOffset < maze->GetHeight())
 	{
-		if (checkpoints.size() > 0)
+		paths = 0;
+
+		// First check if we are stuck or our next direction is a dead end
+		if (MoveToCheckpoint(xOffset, yOffset))
 		{
-			// If we get stuck we go one position back to find another way.
 			xPos = checkpoints.back().X;
 			yPos = checkpoints.back().Y;
-			checkpoints.pop_back();
-			directions.pop_back();
+			for (int i = 0; i < checkpoints.back().Moves; i++)
+				if (directions.size() > 0)
+					directions.pop_back();
+			/*if (checkpoints.back().Paths <= 0)
+			{
+				checkpoints.pop_back();
+			}*/
+			checkpoints.back().Paths -= 1;
+			checkpoints.back().Moves = 0;
+			
+			return;
+		}
+		// If we are not stuck and we havent visited the next cell yet, we push back our current position to a vector so we can go back if we get stuck, Then we visit the next cell and push back the direction we whent
+		else if (!maze->GetCells()[yPos + yOffset][xPos + xOffset].visited)
+		{
 			retries = 0;
+			pos += count;
+			directions.push_back(dirStr);
+			for (auto& x : maze->GetCells()[yPos][xPos].walls)
+			{
+				if (!x.second)
+					paths++;
+			}
+			if (checkpoints.size() > 0)
+				checkpoints.back().Moves++;
+			if (paths > 2)
+			{
+				checkpoints.push_back({ xPos, yPos, paths });
+			}
+			MazeLoop();
 		}
-		//maze->GetCells()[yPos][xPos].hasBeenVisited = true;
-	}
-	// If we are not stuck and we havent visited the next cell yet, we push back our current position to a vector so we can go back if we get stuck, Then we visit the next cell and push back the direction we whent
-	else if (!maze->GetCells()[yPos + yOffset][xPos + xOffset].visited)
-	{
-		retries = 0;
-		//RemoveDirection(direction);
-		pos += count;
-		for (auto& x : maze->GetCells()[yPos][xPos].walls)
+		else
 		{
-			if (!x.second)
-				paths++;
+			retries++;
 		}
-		directions.push_back(dirStr);
-		if (paths > 2)
-		{
-			checkpoints.push_back({ xPos, yPos });
-		}
-		MazeLoop();
-	}
-	else
-	{
-		retries++;
 	}
 }
 
@@ -120,21 +130,42 @@ bool Solver::IsStuck(int xOffset, int yOffset)
 	return false;
 }
 
+bool Solver::MoveToCheckpoint(int xOffset, int yOffset)
+{
+	if (checkpoints.size() > 0)
+	{
+		if (IsStuck(xOffset, yOffset))
+		{
+			// If we get stuck we go one position back to find another way.	
+
+			return true;
+		}
+		else if (retries > 3)
+		{
+			checkpoints.back().Paths = 0;
+			checkpoints.pop_back();
+			retries = 0;
+			return true;
+		}
+	}
+	return false;
+}
+
 void Solver::RemoveDirection(Direction dir)
 {
 	switch (dir)
 	{
 	case Direction::NORTH:
-		maze->GetCells()[yPos][xPos].walls[Direction::NORTH] = true;
-		break;
-	case Direction::SOUTH:
 		maze->GetCells()[yPos][xPos].walls[Direction::SOUTH] = true;
 		break;
+	case Direction::SOUTH:
+		maze->GetCells()[yPos][xPos].walls[Direction::NORTH] = true;
+		break;
 	case Direction::EAST:
-		maze->GetCells()[yPos][xPos].walls[Direction::EAST] = true;
+		maze->GetCells()[yPos][xPos].walls[Direction::WEST] = true;
 		break;
 	case Direction::WEST:
-		maze->GetCells()[yPos][xPos].walls[Direction::WEST] = true;
+		maze->GetCells()[yPos][xPos].walls[Direction::EAST] = true;
 		break;
 	default:
 		break;

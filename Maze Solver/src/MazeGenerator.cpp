@@ -29,7 +29,7 @@ Maze* MazeGenerator::GenerateMazeFromFile(const char* path)
 
 		std::getline(file, line);
 		std::string temp = "";
-		ConvertArrayToString(temp, line, width);
+		ConvertArrayToString(temp, line, height);
 
 		Cell** cells = InitCells(width, height);
 
@@ -43,9 +43,9 @@ Maze* MazeGenerator::GenerateMazeFromFile(const char* path)
 Cell** MazeGenerator::InitCells(int width, int height)
 {
 	Cell** cells = nullptr;
-	cells = new Cell * [width];
-	for (int i = 0; i < width; i++)
-		cells[i] = new Cell[height];
+	cells = new Cell * [height];
+	for (int i = 0; i < height; i++)
+		cells[i] = new Cell[width];
 
 	return cells;
 }
@@ -82,9 +82,9 @@ std::string MazeGenerator::GetValueFromString(std::string str, int& counter)
 void MazeGenerator::ApplyValueToCells(int width, int height, std::string& str, Cell** cells)
 {
 	int counter = 0;
-	for (int i = 0; i < width; i++)
+	for (int i = 0; i < height; i++)
 	{
-		for (int j = 0; j < height; j++)
+		for (int j = 0; j < width; j++)
 		{
 			std::string stringVal = GetValueFromString(str, counter).c_str();
 			uint8_t value = 0;
