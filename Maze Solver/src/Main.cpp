@@ -20,7 +20,7 @@ int main()
 	mazes.emplace(25534, "assets/mazes/1000x1000_25534.dat");
 
 
-	Maze* maze = MazeGenerator::GenerateMazeFromFile(mazes[1952].c_str());
+	Maze* maze = MazeGenerator::GenerateMazeFromFile(mazes[25534].c_str());
 
 	
 	//for (int i = 0; i < maze->GetHeight(); i++)

@@ -1,6 +1,7 @@
 #include "Solver.h"
 #include <iostream>
 #include <time.h>
+#include <fstream>
 
 Solver::Solver(Maze* maze)
 	: maze(maze)
@@ -17,11 +18,20 @@ void Solver::Solve()
 	{
 		MazeLoop();
 	}
-
+	std::ofstream file("assets/Solutions/1000x1000_Commands.txt");
+	std::ofstream file2("assets/Solutions/1000x1000_Coordinates.txt");
 	for (int i = 0; i < directions.size(); i++)
 	{
-		std::cout << directions[i] << "\n";
+		file << directions[i] + "\n";
+		std::string cords = "(";
+		cords.append(std::to_string(coordinates[i].X));
+		cords.append(", ");
+		cords.append(std::to_string(coordinates[i].Y));
+		cords.append(")");
+		file2 << cords + "\n";
 	}
+	file.close();
+	file2.close();
 	std::cout << directions.size() << "\n";
 }
 
@@ -36,17 +46,17 @@ void Solver::MazeLoop()
 		case Direction::NORTH:
 			if (yPos != 0)
 			{
-				MoveCell(Direction::NORTH, "UP", yPos, -1, 0, -1);
+				MoveCell(Direction::NORTH, "NORTH", yPos, -1, 0, -1);
 			}
 			break;
 		case Direction::SOUTH:
-			MoveCell(Direction::SOUTH, "DOWN", yPos, 1, 0, 1);
+			MoveCell(Direction::SOUTH, "SOUTH", yPos, 1, 0, 1);
 			break;
 		case Direction::EAST:
-			MoveCell(Direction::EAST, "RIGHT", xPos, 1, 1, 0);
+			MoveCell(Direction::EAST, "EAST", xPos, 1, 1, 0);
 			break;
 		case Direction::WEST:
-			MoveCell(Direction::WEST, "LEFT", xPos, -1, -1, 0);
+			MoveCell(Direction::WEST, "WEST", xPos, -1, -1, 0);
 			break;
 		default:
 			break;
@@ -84,6 +94,7 @@ void Solver::MoveCell(Direction direction, std::string dirStr, int& pos, int cou
 				checkpoints.push_back({ xPos, yPos, paths });
 			}
 			directions.push_back(dirStr);
+			coordinates.push_back({ xPos, yPos });
 
 			// remove the opposite direction we came from, so we dont have to try to go back to it again.
 			RemoveDirection(direction);
@@ -111,8 +122,10 @@ void Solver::MoveToCheckpoint()
 
 	// Once we get stuck we loop through all the moves we counted since last checkpoint, to remove all the directions we took
 	for (int i = 0; i < checkpoints.back().Moves; i++)
-		if (directions.size() > 0)
-			directions.pop_back();
+	{
+		directions.pop_back();
+		coordinates.pop_back();
+	}
 
 	checkpoints.back().Paths -= 1;
 	checkpoints.back().Moves = 0;

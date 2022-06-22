@@ -12,6 +12,13 @@ public:
 	int Moves = 0;
 };
 
+struct Coordinates
+{
+public:
+	int X;
+	int Y;
+};
+
 class Solver
 {
 public:
@@ -33,6 +40,7 @@ private:
 	Maze* maze = nullptr;
 	std::vector<std::string> directions;
 	std::vector<Checkpoint> checkpoints;
+	std::vector<Coordinates> coordinates;
 	int xPos;
 	int yPos;
 	// Path counter to know when to add a checkpoint
