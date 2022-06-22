@@ -8,7 +8,7 @@ int main()
 {
 
 	// Works with 3x3 and 5x5 maze, but with other mazes it traps itself in a corner
-	Maze* maze = MazeGenerator::GenerateMazeFromFile("assets/mazes/400x566_11860.dat");
+	Maze* maze = MazeGenerator::GenerateMazeFromFile("assets/mazes/1000x1000_25534.dat");
 
 	
 	//for (int i = 0; i < maze->GetHeight(); i++)
