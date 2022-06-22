@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include <map>
+#include <vector>
 
 // 00000001 = North = 1
 // 00000010 = South = 2
@@ -19,10 +19,11 @@ public:
 	void PlaceWall(uint8_t value);
 
 private:
+	// If we got 1 or less walls in our list, then it must be a dead end
 	void CheckForDeadEnd();
 public:
 	uint8_t value;
-	std::map<Direction, bool> walls{ {Direction::NORTH, false}, {Direction::SOUTH, false}, {Direction::EAST, false}, {Direction::WEST, false} };
+	std::vector<Direction> openDirections;
 	bool visited = false;
 	bool isDeadEnd = false;
 };

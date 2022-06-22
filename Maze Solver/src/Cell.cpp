@@ -5,23 +5,21 @@ void Cell::PlaceWall(uint8_t value)
 {
 	this->value = value;
 
-	// Check if there is a wall at the given direction
-	if (value & (uint8_t)Direction::NORTH)
-		walls[Direction::NORTH] = true;
-	if (value & (uint8_t)Direction::SOUTH)
-		walls[Direction::SOUTH] = true;
-	if (value & (uint8_t)Direction::EAST)
-		walls[Direction::EAST] = true;
-	if (value & (uint8_t)Direction::WEST)
-		walls[Direction::WEST] = true;
+	// If there is not a wall add it to the list
+	if (~value & (uint8_t)Direction::NORTH)
+		openDirections.push_back(Direction::NORTH);
+	if (~value & (uint8_t)Direction::SOUTH)
+		openDirections.push_back(Direction::SOUTH);
+	if (~value & (uint8_t)Direction::EAST)
+		openDirections.push_back(Direction::EAST);
+	if (~value & (uint8_t)Direction::WEST)
+		openDirections.push_back(Direction::WEST);
 
 	CheckForDeadEnd();
 }
 
 void Cell::CheckForDeadEnd()
 {
-	if (walls[Direction::NORTH] && walls[Direction::SOUTH] && walls[Direction::EAST] || walls[Direction::NORTH] && walls[Direction::SOUTH] && walls[Direction::WEST] ||
-		walls[Direction::SOUTH] && walls[Direction::EAST] && walls[Direction::WEST] || walls[Direction::NORTH] && walls[Direction::WEST] && walls[Direction::EAST])
+	if (openDirections.size() <= 1)
 		isDeadEnd = true;
-	//std::cout << isDeadEnd << "\n";
 }

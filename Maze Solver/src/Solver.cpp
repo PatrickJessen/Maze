@@ -9,7 +9,6 @@ Solver::Solver(Maze* maze)
 	yPos = 0;
 	checkpoints.push_back({ xPos, yPos });
 	maze->GetCells()[yPos][xPos].visited = true;
-	srand(time(NULL));
 }
 
 void Solver::Solve()
@@ -23,45 +22,34 @@ void Solver::Solve()
 	{
 		std::cout << directions[i] << "\n";
 	}
-	std::cout << directions.size() - 1 << "\n";
+	std::cout << directions.size() << "\n";
 }
 
-// Recursive function that gets called each time we find a way to another cell
 void Solver::MazeLoop()
 {
-	// if we hit the exit return.
-	if (yPos == maze->GetHeight() - 1 && xPos == maze->GetExit() - 1)
-		return;
-
-	// loop through the walls at the current position
-	for (auto& x : maze->GetCells()[yPos][xPos].walls)
+	for (int i = 0; i < maze->GetCells()[yPos][xPos].openDirections.size(); i++)
 	{
 		if (yPos == maze->GetHeight() - 1 && xPos == maze->GetExit() - 1)
 			return;
-		// if there isnt a wall, move to that cell.
-		if (!x.second)
+		switch (maze->GetCells()[yPos][xPos].openDirections[i])
 		{
-			maze->GetCells()[yPos][xPos].visited = true;
-			switch (x.first)
+		case Direction::NORTH:
+			if (yPos != 0)
 			{
-			case Direction::NORTH:
-				if (yPos != 0)
-				{
-					MoveCell(Direction::NORTH, "UP", yPos, -1, 0, -1);
-				}
-				break;
-			case Direction::SOUTH:
-				MoveCell(Direction::SOUTH, "DOWN", yPos, 1, 0, 1);
-				break;
-			case Direction::EAST:
-				MoveCell(Direction::EAST, "RIGHT", xPos, 1, 1, 0);
-				break;
-			case Direction::WEST:
-				MoveCell(Direction::WEST, "LEFT", xPos, -1, -1, 0);
-				break;
-			default:
-				break;
+				MoveCell(Direction::NORTH, "UP", yPos, -1, 0, -1);
 			}
+			break;
+		case Direction::SOUTH:
+			MoveCell(Direction::SOUTH, "DOWN", yPos, 1, 0, 1);
+			break;
+		case Direction::EAST:
+			MoveCell(Direction::EAST, "RIGHT", xPos, 1, 1, 0);
+			break;
+		case Direction::WEST:
+			MoveCell(Direction::WEST, "LEFT", xPos, -1, -1, 0);
+			break;
+		default:
+			break;
 		}
 	}
 }
@@ -71,46 +59,41 @@ void Solver::MoveCell(Direction direction, std::string dirStr, int& pos, int cou
 	// Make sure we dont go outside of the array
 	if (xPos + xOffset < maze->GetWidth() && yPos + yOffset < maze->GetHeight())
 	{
-		paths = 0;
-
-		// First check if we are stuck or our next direction is a dead end
-		if (MoveToCheckpoint(xOffset, yOffset))
+		// if we get stuck go to the last checkpoint in the checkpoint list
+		if (IsStuck(xOffset, yOffset) || retries > 3)
 		{
-			xPos = checkpoints.back().X;
-			yPos = checkpoints.back().Y;
-			for (int i = 0; i < checkpoints.back().Moves; i++)
-				if (directions.size() > 0)
-					directions.pop_back();
-			/*if (checkpoints.back().Paths <= 0)
+			if (checkpoints.size() > 0)
 			{
-				checkpoints.pop_back();
-			}*/
-			checkpoints.back().Paths -= 1;
-			checkpoints.back().Moves = 0;
-			
-			return;
+				MoveToCheckpoint();
+			}
 		}
-		// If we are not stuck and we havent visited the next cell yet, we push back our current position to a vector so we can go back if we get stuck, Then we visit the next cell and push back the direction we whent
+		// if we havent visited the next cell, move to the cell.
 		else if (!maze->GetCells()[yPos + yOffset][xPos + xOffset].visited)
 		{
-			retries = 0;
 			pos += count;
-			directions.push_back(dirStr);
-			for (auto& x : maze->GetCells()[yPos][xPos].walls)
-			{
-				if (!x.second)
-					paths++;
-			}
+			maze->GetCells()[yPos][xPos].visited = true;
+
+			// count the moves from checkpoint to a dead end
 			if (checkpoints.size() > 0)
 				checkpoints.back().Moves++;
-			if (paths > 2)
+
+			// if theres more than 2 possible directions to go, we add a checkpoint to go back to if we get stuck.
+			if (maze->GetCells()[yPos][xPos].openDirections.size() > 2)
 			{
+				paths = maze->GetCells()[yPos][xPos].openDirections.size();
 				checkpoints.push_back({ xPos, yPos, paths });
 			}
+			directions.push_back(dirStr);
+
+			// remove the opposite direction we came from, so we dont have to try to go back to it again.
+			RemoveDirection(direction);
+			retries = 0;
 			MazeLoop();
 		}
 		else
 		{
+			// if we get completely stuck, we add to retries.
+			// once this hits 4 we go back to the latest checkpoint.
 			retries++;
 		}
 	}
@@ -118,37 +101,26 @@ void Solver::MoveCell(Direction direction, std::string dirStr, int& pos, int cou
 
 bool Solver::IsStuck(int xOffset, int yOffset)
 {
-	//if (yPos + yOffset != maze->GetHeight())
-	{
-		//bool visited = maze->GetCells()[yPos + yOffset][xPos + xOffset].visited;
-		bool deadEnd = maze->GetCells()[yPos][xPos].isDeadEnd;
-		if (deadEnd)
-		{
-			return true;
-		}
-	}
-	return false;
+	return maze->GetCells()[yPos][xPos].isDeadEnd;
 }
 
-bool Solver::MoveToCheckpoint(int xOffset, int yOffset)
+void Solver::MoveToCheckpoint()
 {
-	if (checkpoints.size() > 0)
-	{
-		if (IsStuck(xOffset, yOffset))
-		{
-			// If we get stuck we go one position back to find another way.	
+	xPos = checkpoints.back().X;
+	yPos = checkpoints.back().Y;
 
-			return true;
-		}
-		else if (retries > 3)
-		{
-			checkpoints.back().Paths = 0;
-			checkpoints.pop_back();
-			retries = 0;
-			return true;
-		}
-	}
-	return false;
+	// Once we get stuck we loop through all the moves we counted since last checkpoint, to remove all the directions we took
+	for (int i = 0; i < checkpoints.back().Moves; i++)
+		if (directions.size() > 0)
+			directions.pop_back();
+
+	checkpoints.back().Paths -= 1;
+	checkpoints.back().Moves = 0;
+
+	if (checkpoints.back().Paths <= 0)
+		checkpoints.pop_back();
+
+	retries = 0;
 }
 
 void Solver::RemoveDirection(Direction dir)
@@ -156,18 +128,30 @@ void Solver::RemoveDirection(Direction dir)
 	switch (dir)
 	{
 	case Direction::NORTH:
-		maze->GetCells()[yPos][xPos].walls[Direction::SOUTH] = true;
+		RemoveOppositeDirection(Direction::SOUTH);
 		break;
 	case Direction::SOUTH:
-		maze->GetCells()[yPos][xPos].walls[Direction::NORTH] = true;
+		RemoveOppositeDirection(Direction::NORTH);
 		break;
 	case Direction::EAST:
-		maze->GetCells()[yPos][xPos].walls[Direction::WEST] = true;
+		RemoveOppositeDirection(Direction::WEST);
 		break;
 	case Direction::WEST:
-		maze->GetCells()[yPos][xPos].walls[Direction::EAST] = true;
+		RemoveOppositeDirection(Direction::EAST);
 		break;
 	default:
 		break;
 	}
+
+	// if there is no direction to go to, we go back to the latest checkpoint.
+	if (maze->GetCells()[yPos][xPos].openDirections.empty())
+		MoveToCheckpoint();
+
+}
+
+void Solver::RemoveOppositeDirection(Direction dir)
+{
+	for (int i = 0; i < maze->GetCells()[yPos][xPos].openDirections.size(); i++)
+		if (maze->GetCells()[yPos][xPos].openDirections[i] == dir)
+			maze->GetCells()[yPos][xPos].openDirections.erase(maze->GetCells()[yPos][xPos].openDirections.begin() + i);
 }
