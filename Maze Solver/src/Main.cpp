@@ -20,7 +20,6 @@ int main()
 	mazes.emplace(25534, "assets/mazes/1000x1000_25534.dat");
 
 
-	// Works with 3x3 and 5x5 maze, but with other mazes it traps itself in a corner
 	Maze* maze = MazeGenerator::GenerateMazeFromFile(mazes[1952].c_str());
 
 	
