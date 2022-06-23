@@ -18,20 +18,20 @@ void Solver::Solve()
 	{
 		MazeLoop();
 	}
-	std::ofstream file("assets/Solutions/1000x1000_Commands.txt");
-	std::ofstream file2("assets/Solutions/1000x1000_Coordinates.txt");
-	for (int i = 0; i < directions.size(); i++)
-	{
-		file << directions[i] + "\n";
-		std::string cords = "(";
-		cords.append(std::to_string(coordinates[i].X));
-		cords.append(", ");
-		cords.append(std::to_string(coordinates[i].Y));
-		cords.append(")");
-		file2 << cords + "\n";
-	}
-	file.close();
-	file2.close();
+	//std::ofstream file("assets/Solutions/1000x1000_Commands.txt");
+	//std::ofstream file2("assets/Solutions/1000x1000_Coordinates.txt");
+	//for (int i = 0; i < directions.size(); i++)
+	//{
+	//	file << directions[i] + "\n";
+	//	std::string cords = "(";
+	//	cords.append(std::to_string(coordinates[i].X));
+	//	cords.append(", ");
+	//	cords.append(std::to_string(coordinates[i].Y));
+	//	cords.append(")");
+	//	file2 << cords + "\n";
+	//}
+	//file.close();
+	//file2.close();
 	std::cout << directions.size() << "\n";
 }
 
@@ -99,7 +99,7 @@ void Solver::MoveCell(Direction direction, std::string dirStr, int& pos, int cou
 			// remove the opposite direction we came from, so we dont have to try to go back to it again.
 			RemoveDirection(direction);
 			retries = 0;
-			MazeLoop();
+			//MazeLoop();
 		}
 		else
 		{

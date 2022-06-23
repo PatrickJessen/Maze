@@ -29,8 +29,8 @@ public:
 	void Solve();
 
 private:
-	// Helper function that checks where the walls are and if a cell has already been visited
 	void MazeLoop();
+	// Helper function that checks where the walls are and if a cell has already been visited
 	void MoveCell(Direction direction, std::string dirStr, int& pos, int count, int xOffset, int yOffset);
 	bool IsStuck(int xOffset, int yOffset);
 	void MoveToCheckpoint();
