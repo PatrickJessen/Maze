@@ -92,7 +92,7 @@ void MazeGenerator::ApplyValueToCells(int width, int height, std::string& str, C
 			if (stringVal != "")
 			{
 				value = atoi(stringVal.c_str());
-				cells[i][j].PlaceWall(value);
+				cells[i][j].AddDirection(value);
 			}
 		}
 	}

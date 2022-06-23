@@ -1,7 +1,7 @@
 #include "Cell.h"
 #include <iostream>
 
-void Cell::PlaceWall(uint8_t value)
+void Cell::AddDirection(uint8_t value)
 {
 	this->value = value;
 

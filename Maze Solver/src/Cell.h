@@ -16,7 +16,7 @@ class Cell
 public:
 	Cell() = default;
 
-	void PlaceWall(uint8_t value);
+	void AddDirection(uint8_t value);
 
 private:
 	// If we got 1 or less walls in our list, then it must be a dead end
